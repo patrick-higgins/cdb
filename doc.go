@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Reads and writes D. J. Bernstein's constant database format
+// Reads and writes Dan Bernstein's constant database format
 // (CDB). See http://cr.yp.to/cdb.html for details on the format.
 //
 // This package is intended for read-only data and is useful to get

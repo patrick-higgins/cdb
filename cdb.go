@@ -140,7 +140,9 @@ func (db *CDB) Close() error {
 var ErrNotFound = errors.New("key not found")
 
 // Data returns the data associated with key. A shared copy of the data is
-// returned and must not be modified. If not found, returns ErrNotFound.
+// returned and must not be modified. A non-recoverable panic will result
+// if the data is written to.
+// If not found, returns ErrNotFound.
 func (db *CDB) Data(key []byte) (val []byte, err error) {
 	// catch array range checks, etc.
 	defer func() {

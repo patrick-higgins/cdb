@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"testing"
 )
 
@@ -60,6 +61,34 @@ func TestCDB(t *testing.T) {
 		if !bytes.Equal(got, rec.val) {
 			t.Errorf("[%d] Data(%v)=%v, want=%v", i, rec.key, got, rec.val)
 		}
+	}
+}
+
+func TestReadProtection(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") == "1" {
+		rec := record{[]byte("key"), []byte("value")}
+		db := createDB([]record{rec})
+
+		data, err := db.Data(rec.key)
+		if err != nil {
+			t.Fatalf("Data(%v): %v", rec.key, err)
+		}
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Write caused recoverable panic: %v", r)
+			}
+		}()
+		// should cause unrecoverable panic
+		data[0] = 0
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=^TestReadProtection$")
+	cmd.Env = append(os.Environ(), "GO_WANT_HELPER_PROCESS=1")
+
+	out, err := cmd.CombinedOutput()
+	if !bytes.Contains(out, []byte("panic")) || err == nil {
+		t.Fatalf("child process should have panicked: %q, %v", out, err)
 	}
 }
 
